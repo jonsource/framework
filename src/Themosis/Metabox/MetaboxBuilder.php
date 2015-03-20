@@ -261,6 +261,10 @@ class MetaboxBuilder extends Wrapper {
 
                 $order = 0;
 
+                // no reference set - go on
+                if(!is_array($value)) {
+                    continue;
+                }
                 // insert all new values
                 foreach($value as $v) {
                     $wpdb->insert('wp_reference',array('name'=>$field['name'],'owner'=>$postId,'ref'=>$v,'item_order'=>$order),array('%s','%d','%d','%d'));

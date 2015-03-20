@@ -521,6 +521,13 @@ if (!function_exists('str_contains'))
     }
 }
 
+
+function themosis_is_post_type($id) {
+    if(isset($_GET['post_type'])) {
+        return $_GET['post_type']==$id;
+    }
+    return themosis_is_post($id);
+}
 /**
  * Retrieve the reference data from the given
  * post type ID and meta key.

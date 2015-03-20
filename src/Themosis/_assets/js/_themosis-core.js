@@ -20,15 +20,25 @@
 
         eventAggregator: _.extend({}, Backbone.Events),
 
-        template: '<div class="selector"><h1>Selector</h1><div class="data"></div><input class="mfcc_selector_select" type="button" value="select"/></div>',
+        template: '<div class="selector"><h1><%=title%></h1>'+
+                    '<a class="media-modal-close" href="#"><span class="media-modal-icon"><span class="screen-reader-text">Zavřít okno pro práci s mediálními soubory</span></span></a>'+
+                    '<ul class="data"></ul>'+
+                  '</div>',
 
         initialize: function(param)
         {
             //this.listenTo(this.collection, 'removeSelected', this.removeSelection);
-
+            console.log(param);
             this.title = param.title;
             this.type = param.type;
-            console.log(this);
+            console.log(param.params);
+            if(param.params && param.params.replace)
+            {
+                this.params = JSON.parse(param.params.replace(/'/g,'"'));
+            } else {
+                this.params = {};
+            }
+
         },
 
         /**
@@ -43,14 +53,15 @@
             console.log(this.$el);
             this.$el.html(template({title:this.title}));
 
-            //this.$el.find('.mfcc_selector_select').click(this,this.select);
+            this.$el.draggable();
 
+            //this.$el.find('a.media-modal-close').click(this,this.close);
+            this.delegateEvents();
             return this;
         },
 
         events: {
-            'click .mfcc_selector_select': 'select',
-            'click a.check' : 'removeItem'
+            'click a.media-modal-close' : 'close'
         },
 
         /**
@@ -66,20 +77,25 @@
 
         aquireData: function() {
             var de = this.$el.find('.data');
-            var template = _.template('<div data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><h1><%= post_title %></h1></div>');
+            var template = _.template('<li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><span><%= post_title %></span></li>');
             var that = this;
-            $.get('http://localhost/puzzlesalads/htdocs/api/?post_type='+this.type,function(data)
+            var oh = that.$el.height();
+            var ot = parseInt(that.$el.css('top'));
+            var query = 'post_type='+this.type;
+            if(this.params.meta_key) query+='&meta_key='+this.params.meta_key;
+            if(this.params.meta_value) query+='&meta_value='+this.params.meta_value;
+            $.get('http://localhost/puzzlesalads/htdocs/api/?'+query,function(data)
                 {   data=JSON.parse(data);
                     for(var d in data) {
                         var n = $(template(data[d]));
                         n.click(that,that.select);
                         de.append(n);
                     }
+                    that.$el.css('top',ot+(oh-that.$el.height()));
                 });
         },
 
         open: function(e) {
-            console.log(e);
             if($('#mfcc_selector').length)
             {
                 this.$el = $('#mfcc_selector');
@@ -87,8 +103,20 @@
                 this.$el = $('<div id="mfcc_selector"></div>');
                 $('body').append(this.$el);
             }
+            this.$el.addClass('visible');
             this.render();
+            var ct = $(e.currentTarget)
+            var off = ct.offset();
+            this.$el.css('top', off.top-ct.height()-200);
+            this.$el.css('left', off.left-ct.outerWidth()+200);
             this.aquireData();
+        },
+
+        close: function(e) {
+            //console.log(e,l);
+            this.$el.find('.selector').remove();
+            this.$el.removeClass('visible');
+            return false;
         },
 
         get: function(param) {
@@ -302,13 +330,13 @@
                     }
                 });
             } else {
-                console.log('rows collection');
                 this.frame = new MfccSelector.View({
                     // The displayed title.
-                    title: 'Insert media',
+                    title: this.$el.data('type-name'),
 
                     // Type of posts shown
-                    type: this.$el.data('type')
+                    type: this.$el.data('type'),
+                    params: this.$el.data('params')
 
                 });
             }
@@ -461,9 +489,9 @@
          *
          * @return void
          */
-        add: function()
+        add: function(e)
         {
-            this.frame.open();
+            this.frame.open(e);
         },
 
         /**
