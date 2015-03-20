@@ -257,4 +257,22 @@ class FieldFactory {
         return $this->make('Themosis\\Field\\Fields\\CollectionField', $properties);
     }
 
+    /**
+     * Define a ReferenceField instance.
+     *
+     * @param string $name The name attribute.
+     * @param string $type Referenced post type
+     * @param int $multi Multiple reference limit, default 1
+     * @param array $extras
+     * @return \Themosis\Field\Fields\CollectionField
+     */
+    public function reference($name, $type, $multi = 1, array $extras = array())
+    {
+        $properties = compact('name','type','multi');
+
+        $properties = array_merge($extras, $properties);
+
+        return $this->make('Themosis\\Field\\Fields\\ReferenceField', $properties);
+    }
+
 } 

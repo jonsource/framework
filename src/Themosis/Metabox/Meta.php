@@ -9,12 +9,21 @@ class Meta
 	 * 
 	 * @param int $id The post type ID.
 	 * @param string $key The meta name.
-	 * @param bool $single Default to true. False to return as an array.
+	 * @param bool $single Default to true. False to return as an array. 'reference' or Array of extras for reference parameters
 	 * @return mixed The meta value.
 	 */
 	public static function get($id, $key = '', $single = true)
 	{
-		$default = get_post_meta($id, $key, $single);
+		if(is_array($single) || $single == 'reference')
+        {
+            $default = get_post_reference($id, $key, is_array($single) ? $single : array());
+
+        }
+        else
+        {
+            $default = get_post_meta($id, $key, $single);
+        }
+
 
 		if (is_ssl()) {
 

@@ -247,9 +247,32 @@ class MetaboxBuilder extends Wrapper {
      */
     private function register($postId, array $fields)
     {
+
         foreach($fields as $field)
         {
             $value = isset($_POST[$field['name']]) ? $_POST[$field['name']] : $this->parseValue($field);
+
+            if($field->getFieldType()=='reference')
+            {
+                global $wpdb;
+
+                // delete old values
+                $wpdb->get_results( $wpdb->prepare('DELETE FROM wp_reference WHERE name = %s AND owner = %d', $field['name'], $postId));
+
+                $order = 0;
+
+                // no reference set - go on
+                if(!is_array($value)) {
+                    continue;
+                }
+                // insert all new values
+                foreach($value as $v) {
+                    $wpdb->insert('wp_reference',array('name'=>$field['name'],'owner'=>$postId,'ref'=>$v,'item_order'=>$order),array('%s','%d','%d','%d'));
+                    $order++;
+                }
+
+                continue;
+            }
 
             // Apply validation if defined.
             // Check if the rule exists for the field in order to validate.
@@ -331,7 +354,14 @@ class MetaboxBuilder extends Wrapper {
         foreach ($fields as $field)
         {
             // Check if saved value
-            $value = get_post_meta($post->ID, $field['name'], true);
+            if($field->getFieldType()=='reference')
+            {
+                $value = get_post_reference($post->ID, $field['name']);
+
+            } else {
+
+                $value = get_post_meta($post->ID, $field['name'], true);
+            }
 
             // If none of the above condition is matched
             // simply assign the post meta default or saved value.
