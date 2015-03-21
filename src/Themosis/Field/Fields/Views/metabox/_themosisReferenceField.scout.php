@@ -1,14 +1,14 @@
 <?php
 
     //var_dump($field);
-    $json_params = str_replace('"',"'",json_encode($field['params']));
+    $json_query = str_replace('"',"'",json_encode($field['query']));
     //var_dump($json_params);
 ?>
 
 <!-- Collection field -->
 <div class="themosis-collection-wrapper rows" data-type-name="{{$field['type-name']?$field['type-name']:get_post_type_object($field['type'])->labels->singular_name}}"
      data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1"
-     data-params="{{ $json_params }}"
+     data-query="{{ $json_query }}"
      data-name="{{ $field['name'] }}[]" data-field="collection">
     <script id="themosis-collection-item-template" type="text/template">
         <input type="hidden" name="{{ $field['name'] }}[]" value="<%= value %>" data-field="collection"/>

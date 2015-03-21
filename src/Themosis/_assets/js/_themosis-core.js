@@ -31,12 +31,12 @@
             console.log(param);
             this.title = param.title;
             this.type = param.type;
-            console.log(param.params);
-            if(param.params && param.params.replace)
+            console.log(param.query);
+            if(param.query && param.query.replace)
             {
-                this.params = JSON.parse(param.params.replace(/'/g,'"'));
+                this.query = JSON.parse(param.query.replace(/'/g,'"'));
             } else {
-                this.params = {};
+                this.query = {};
             }
 
         },
@@ -82,8 +82,13 @@
             var oh = that.$el.height();
             var ot = parseInt(that.$el.css('top'));
             var query = 'post_type='+this.type;
-            if(this.params.meta_key) query+='&meta_key='+this.params.meta_key;
+            /*if(this.params.meta_key) query+='&meta_key='+this.params.meta_key;
             if(this.params.meta_value) query+='&meta_value='+this.params.meta_value;
+            if(this.params.referenced_by_id) query+='&meta_value='+this.params.meta_value;*/
+            console.log(this.query);
+            for(var q in this.query) {
+                query+='&'+q+'='+this.query[q];
+            }
             $.get('http://localhost/puzzlesalads/htdocs/api/?'+query,function(data)
                 {   data=JSON.parse(data);
                     for(var d in data) {
@@ -119,9 +124,6 @@
             return false;
         },
 
-        get: function(param) {
-            return {id:32, type:'mfcc_ingredients', title:'title32'}
-        }
     });
 
     //------------------------------------------------
@@ -330,13 +332,14 @@
                     }
                 });
             } else {
+                console.log(this.$el.data());
                 this.frame = new MfccSelector.View({
                     // The displayed title.
                     title: this.$el.data('type-name'),
 
                     // Type of posts shown
                     type: this.$el.data('type'),
-                    params: this.$el.data('params')
+                    query: this.$el.data('query')
 
                 });
             }
