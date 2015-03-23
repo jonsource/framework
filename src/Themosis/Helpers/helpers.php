@@ -216,6 +216,15 @@ if (!function_exists('themosis_is_post'))
             return true;
         }
 
+        if (!is_numeric($id))
+        {
+            $post = get_post($postId);
+            if($post && $id === $post->post_type)
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 }
@@ -510,4 +519,42 @@ if (!function_exists('str_contains'))
 
         return false;
     }
+}
+
+
+function themosis_is_post_type($id) {
+    if(isset($_GET['post_type'])) {
+        return $_GET['post_type']==$id;
+    }
+    return themosis_is_post($id);
+}
+/**
+ * Retrieve the reference data from the given
+ * post type ID and meta key.
+ *
+ * @param int $id The post type ID.
+ * @param string $key The meta name.
+ * @param bool $single Default to true. False to return as an array.
+ * @return mixed The meta value.
+ */
+function get_post_reference($id, $key = '', array $extra = array())
+{
+    /*$default = get_post_meta($id, $key, $single);*/
+    global $wpdb;
+    $q_params = '';
+    if(isset($extra['limit'])) $q_params .= ' LIMIT '.$extra['limit'];
+    if(isset($extra['offset'])) $q_params .= ','.$extra['offset'];
+    $q_params .= ' ORDER BY item_order';
+    if(isset($extra['reverse']) && $extra['reverse']) $q_params .= ' DESC';
+    else $q_params .= ' ASC';
+
+    $results = $wpdb->get_results( $wpdb->prepare('SELECT * FROM wp_reference WHERE owner = %d AND name = %s'.$q_params, $id, $key) );
+
+    $default = array();
+    foreach($results as $res)
+    {
+        $default[]=$res->ref;
+    }
+
+    return $default;
 }

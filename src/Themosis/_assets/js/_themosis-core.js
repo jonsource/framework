@@ -7,6 +7,126 @@
     //------------------------------------------------
     // COLLECTION - Custom field
     //------------------------------------------------
+    var MfccSelector = {
+        Models: {},
+        View: {},
+        Collections: {}
+    };
+
+    // View - Individual item
+    MfccSelector.View = Backbone.View.extend({
+
+        tagName: 'div',
+
+        eventAggregator: _.extend({}, Backbone.Events),
+
+        template: '<div class="selector"><h1><%=title%></h1>'+
+                    '<a class="media-modal-close" href="#"><span class="media-modal-icon"><span class="screen-reader-text">Zavřít okno pro práci s mediálními soubory</span></span></a>'+
+                    '<ul class="data"></ul>'+
+                  '</div>',
+
+        initialize: function(param)
+        {
+            //this.listenTo(this.collection, 'removeSelected', this.removeSelection);
+            console.log(param);
+            this.title = param.title;
+            this.type = param.type;
+            console.log(param.params);
+            if(param.params && param.params.replace)
+            {
+                this.params = JSON.parse(param.params.replace(/'/g,'"'));
+            } else {
+                this.params = {};
+            }
+
+        },
+
+        /**
+         * Render the new added items.
+         *
+         * @returns {CollectionApp.Views.Item}
+         */
+        render: function()
+        {
+            var template = _.template(this.template);
+
+            console.log(this.$el);
+            this.$el.html(template({title:this.title}));
+
+            this.$el.draggable();
+
+            //this.$el.find('a.media-modal-close').click(this,this.close);
+            this.delegateEvents();
+            return this;
+        },
+
+        events: {
+            'click a.media-modal-close' : 'close'
+        },
+
+        /**
+         * Triggered when the item image is clicked. Set the state of
+         * the element as selected so the collection can perform action into it.
+         *
+         * @return void
+         */
+        select: function(e)
+        {   e.data.selection = {ID : $(this).data('mfcc-id'), title:$(this).data('mfcc-title')};
+            e.data.trigger('select');
+        },
+
+        aquireData: function() {
+            var de = this.$el.find('.data');
+            var template = _.template('<li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><span><%= post_title %></span></li>');
+            var that = this;
+            var oh = that.$el.height();
+            var ot = parseInt(that.$el.css('top'));
+            var query = 'post_type='+this.type;
+            if(this.params.meta_key) query+='&meta_key='+this.params.meta_key;
+            if(this.params.meta_value) query+='&meta_value='+this.params.meta_value;
+            $.get('http://localhost/puzzlesalads/htdocs/api/?'+query,function(data)
+                {   data=JSON.parse(data);
+                    for(var d in data) {
+                        var n = $(template(data[d]));
+                        n.click(that,that.select);
+                        de.append(n);
+                    }
+                    that.$el.css('top',ot+(oh-that.$el.height()));
+                });
+        },
+
+        open: function(e) {
+            if($('#mfcc_selector').length)
+            {
+                this.$el = $('#mfcc_selector');
+            } else {
+                this.$el = $('<div id="mfcc_selector"></div>');
+                $('body').append(this.$el);
+            }
+            this.$el.addClass('visible');
+            this.render();
+            var ct = $(e.currentTarget)
+            var off = ct.offset();
+            this.$el.css('top', off.top-ct.height()-200);
+            this.$el.css('left', off.left-ct.outerWidth()+200);
+            this.aquireData();
+        },
+
+        close: function(e) {
+            //console.log(e,l);
+            this.$el.find('.selector').remove();
+            this.$el.removeClass('visible');
+            return false;
+        },
+
+        get: function(param) {
+            return {id:32, type:'mfcc_ingredients', title:'title32'}
+        }
+    });
+
+    //------------------------------------------------
+    // COLLECTION - Custom field
+    //------------------------------------------------
     var CollectionApp = {
         Models: {},
         Views: {},
@@ -140,6 +260,7 @@
             this.on('change:selected', this.onSelect);
             this.on('remove', this.onSelect);
             this.on('add', this.onAdd);
+
         },
 
         /**
@@ -177,34 +298,50 @@
     // View - Collection
     CollectionApp.Views.Collection = Backbone.View.extend({
 
-        initialize: function()
+        initialize: function(param)
         {
             // Bind to collection events
             this.collection.bind('itemsSelected', this.toggleRemoveButton, this);
             this.collection.bind('collectionToggle', this.toggleCollectionContainer, this);
 
             // Init a WordPress media window.
-            this.frame = wp.media({
-                // Define behaviour of the media window.
-                // 'post' if related to a WordPress post.
-                // 'select' if use outside WordPress post.
-                frame: 'select',
-                // Allow or not multiple selection.
-                multiple: true,
-                // The displayed title.
-                title: 'Insert media',
-                // The button behaviour
-                button: {
-                    text: 'Insert',
-                    close: true
-                },
-                // Type of files shown in the library.
-                // 'image', 'application' (pdf, doc,...)
-                library:{
-                    type: this.$el.data('type')
-                }
-            });
+            console.log(param.el);
+            this.rows = param.el.hasClass('rows');
+            if(!this.rows)
+            {
+                this.frame = wp.media({
+                    // Define behaviour of the media window.
+                    // 'post' if related to a WordPress post.
+                    // 'select' if use outside WordPress post.
+                    frame: 'select',
+                    // Allow or not multiple selection.
+                    multiple: true,
+                    // The displayed title.
+                    title: 'Insert media',
+                    // The button behaviour
+                    button: {
+                        text: 'Insert',
+                        close: true
+                    },
+                    // Type of files shown in the library.
+                    // 'image', 'application' (pdf, doc,...)
+                    library:{
+                        type: this.$el.data('type')
+                    }
+                });
+            } else {
+                this.frame = new MfccSelector.View({
+                    // The displayed title.
+                    title: this.$el.data('type-name'),
 
+                    // Type of posts shown
+                    type: this.$el.data('type'),
+                    params: this.$el.data('params')
+
+                });
+            }
+
+            console.log(this.frame);
             // Attach an event on select. Runs when "insert" button is clicked.
             this.frame.on('select', _.bind(this.selectedItems, this));
 
@@ -219,7 +356,10 @@
          */
         selectedItems: function()
         {
-            var selection = this.frame.state('library').get('selection');
+            console.log('selected items');
+            var selection;
+            if(!this.rows) selection = this.frame.state('library').get('selection');
+            else selection = [this.frame.selection];
 
             selection.map(function(attachment)
             {
@@ -237,12 +377,21 @@
         insertItem: function(attachment)
         {
             // Build a specific model for this attachment.
-            var m = new CollectionApp.Models.Item({
-                'value': attachment.get('id'),
-                'src': this.getAttachmentThumbnail(attachment),
-                'type': attachment.get('type'),
-                'title': attachment.get('title')
-            });
+            console.log(attachment);
+            if(!this.rows)
+            {   var m = new CollectionApp.Models.Item({
+                    'value': attachment.get('id'),
+                    'src': this.getAttachmentThumbnail(attachment),
+                    'type': attachment.get('type'),
+                    'title': attachment.get('title')
+                });
+            } else {
+                var m = new CollectionApp.Models.Item({
+                    'value': attachment.ID,
+                    'type': attachment.type,
+                    'title': attachment.title
+                });
+            }
 
             // Build a view for this attachment and pass it its model and current collection.
             var itemView = new CollectionApp.Views.Item({
@@ -340,9 +489,9 @@
          *
          * @return void
          */
-        add: function()
+        add: function(e)
         {
-            this.frame.open();
+            this.frame.open(e);
         },
 
         /**
@@ -395,7 +544,7 @@
             items = list.children();
 
         // Instantiate a collection.
-        var c = new CollectionApp.Collections.Collection();
+        var c = new CollectionApp.Collections.Collection(list.hasClass('rows'));
 
         // Instantiate a collection view.
         var cView = new CollectionApp.Views.Collection({
