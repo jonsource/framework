@@ -199,9 +199,6 @@ class FormBuilder {
         $merge = compact('type', 'name', 'value');
 
         $attributes = array_merge($attributes, $merge);
-        if($type=='text') {
-            var_dump($attributes);
-        }
 
         return '<input '.$this->html->attributes($attributes).'>';
     }
