@@ -1,14 +1,15 @@
 <?php
 
     //var_dump($field);
-    $json_params = str_replace('"',"'",json_encode($field['params']));
+    $json_query = str_replace('"',"'",json_encode($field['query']));
+    if(!isset($field['limit'])) $field['limit']=0;
     //var_dump($json_params);
 ?>
 
 <!-- Collection field -->
 <div class="themosis-collection-wrapper rows" data-type-name="{{$field['type-name']?$field['type-name']:get_post_type_object($field['type'])->labels->singular_name}}"
      data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1"
-     data-params="{{ $json_params }}"
+     data-query="{{ $json_query }}"
      data-name="{{ $field['name'] }}[]" data-field="collection">
     <script id="themosis-collection-item-template" type="text/template">
         <input type="hidden" name="{{ $field['name'] }}[]" value="<%= value %>" data-field="collection"/>
@@ -58,6 +59,7 @@
                         <a class="check" title="Remove" href="#">
                             <div class="media-modal-icon"></div>
                         </a>
+                        <a class="edit" href="{{get_edit_post_link( $item,'' )}}">edit..</a>
                     </div>
                 </li>
                 @endforeach
@@ -67,7 +69,7 @@
         <!-- End collection -->
     </div>
     <div class="themosis-collection-buttons">
-        <button id="themosis-collection-add" type="button" class="button button-primary"><?php _e('Add'); ?></button>
+        <button id="themosis-collection-add" type="button" class="button button-primary{{($field['limit']&&sizeof($field['value'])>=$field['limit'])?' hide':''}}"><?php _e('Add'); ?></button>
         <button id="themosis-collection-remove" type="button" class="button button-primary themosis-button-remove"><?php _e('Remove'); ?></button>
     </div>
     @if(isset($field['info']))
