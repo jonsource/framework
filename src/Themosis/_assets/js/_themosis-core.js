@@ -28,10 +28,10 @@
         initialize: function(param)
         {
             //this.listenTo(this.collection, 'removeSelected', this.removeSelection);
-            console.log(param);
+            //console.log(param);
             this.title = param.title;
             this.type = param.type;
-            console.log(param.query);
+            //console.log(param.query);
             if(param.query && param.query.replace)
             {
                 this.query = JSON.parse(param.query.replace(/'/g,'"'));
@@ -50,7 +50,7 @@
         {
             var template = _.template(this.template);
 
-            console.log(this.$el);
+            //console.log(this.$el);
             this.$el.html(template({title:this.title}));
 
             this.$el.draggable();
@@ -85,7 +85,7 @@
             /*if(this.params.meta_key) query+='&meta_key='+this.params.meta_key;
             if(this.params.meta_value) query+='&meta_value='+this.params.meta_value;
             if(this.params.referenced_by_id) query+='&meta_value='+this.params.meta_value;*/
-            console.log(this.query);
+            //console.log(this.query);
             for(var q in this.query) {
                 query+='&'+q+'='+this.query[q];
             }
@@ -117,8 +117,7 @@
             this.aquireData();
         },
 
-        close: function(e) {
-            //console.log(e,l);
+        close: function() {
             this.$el.find('.selector').remove();
             this.$el.removeClass('visible');
             return false;
@@ -313,7 +312,7 @@
             this.collection.bind('collectionToggle', this.toggleCollectionContainer, this);
 
             // Init a WordPress media window.
-            console.log(param.el);
+            //console.log(param.el);
             this.rows = param.el.hasClass('rows');
             if(!this.rows)
             {
@@ -338,7 +337,7 @@
                     }
                 });
             } else {
-                console.log(this.$el.data());
+                //console.log(this.$el.data());
                 this.frame = new MfccSelector.View({
                     // The displayed title.
                     title: this.$el.data('type-name'),
@@ -350,7 +349,7 @@
                 });
             }
             this.limit = this.$el.data('limit');
-            console.log(this);
+            //console.log(['view',this,this.limit]);
             // Attach an event on select. Runs when "insert" button is clicked.
             this.frame.on('select', _.bind(this.selectedItems, this));
 
@@ -365,7 +364,7 @@
          */
         selectedItems: function()
         {
-            console.log('selected items');
+            //console.log('selected items');
             var selection;
             if(!this.rows) selection = this.frame.state('library').get('selection');
             else selection = [this.frame.selection];
@@ -386,7 +385,7 @@
         insertItem: function(attachment)
         {
             // Build a specific model for this attachment.
-            console.log(attachment);
+            //console.log(attachment);
             if(!this.rows)
             {   var m = new CollectionApp.Models.Item({
                     'value': attachment.get('id'),
@@ -475,16 +474,13 @@
          * @return void
          */
         toggleAddButton: function(items)
-        {   console.log([items,this,this.limit]);
-            if (items >= this.limit)
+        {   if (items >= this.limit)
             {
-                // Show the main remove button.
+                // Hide the add button.
                 this.$el.find('button#themosis-collection-add').addClass('hide');
-                this.frame.trigger('close');
-            }
-            else
-            {
-                // Hide the main remove button.
+                this.frame.close();
+            } else {
+                // Show the add button.
                 this.$el.find('button#themosis-collection-add').removeClass('hide');
             }
         },
@@ -537,6 +533,7 @@
             var selectedItems = this.collection.where({'selected': true});
 
             this.collection.trigger('removeSelected', selectedItems);
+            /*this.trigger('toggleAddButton', this, this.collection.length);*/
             this.toggleAddButton(this.collection.length);
         },
 
