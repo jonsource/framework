@@ -266,9 +266,9 @@ class FieldFactory {
      * @param array $extras
      * @return \Themosis\Field\Fields\CollectionField
      */
-    public function reference($name, $type, $multi = 1, array $extras = array())
+    public function reference($name, $type, $limit = 1, array $extras = array())
     {
-        $properties = compact('name','type','multi');
+        $properties = compact('name','type','limit');
 
         $properties = array_merge($extras, $properties);
 
