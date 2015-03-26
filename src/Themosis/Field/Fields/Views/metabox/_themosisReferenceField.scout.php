@@ -2,6 +2,7 @@
 
     //var_dump($field);
     $json_query = str_replace('"',"'",json_encode($field['query']));
+    if(!isset($field['limit'])) $field['limit']=0;
     //var_dump($json_params);
 ?>
 
@@ -58,6 +59,7 @@
                         <a class="check" title="Remove" href="#">
                             <div class="media-modal-icon"></div>
                         </a>
+                        <a class="edit" href="{{get_edit_post_link( $item,'' )}}">edit..</a>
                     </div>
                 </li>
                 @endforeach
@@ -67,7 +69,7 @@
         <!-- End collection -->
     </div>
     <div class="themosis-collection-buttons">
-        <button id="themosis-collection-add" type="button" class="button button-primary"><?php _e('Add'); ?></button>
+        <button id="themosis-collection-add" type="button" class="button button-primary{{($field['limit']&&sizeof($field['value'])>=$field['limit'])?' hide':''}}"><?php _e('Add'); ?></button>
         <button id="themosis-collection-remove" type="button" class="button button-primary themosis-button-remove"><?php _e('Remove'); ?></button>
     </div>
     @if(isset($field['info']))

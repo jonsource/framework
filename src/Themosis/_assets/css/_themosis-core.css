@@ -380,6 +380,11 @@
 .rows .themosis-collection__item.selected .check {
     transform: scale(0.7);
 }
+.rows .themosis-collection__item .edit {
+    position: absolute;
+    right: 20px;
+    top: 0px;
+}
 
 .themosis-collection__item.selected .check div, .themosis-collection__item.selected:hover .check div{
     height: 15px;
@@ -468,6 +473,10 @@
 
 #themosis-collection-remove.show{
     display: inline-block;
+}
+
+#themosis-collection-add.hide{
+    display: none;
 }
 
 .wp-core-ui .themosis-button-remove:hover{

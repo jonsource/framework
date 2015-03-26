@@ -122,7 +122,7 @@
             this.$el.find('.selector').remove();
             this.$el.removeClass('visible');
             return false;
-        },
+        }
 
     });
 
@@ -181,7 +181,8 @@
 
         events: {
             'click div.themosis-collection__item': 'select',
-            'click a.check' : 'removeItem'
+            'click a.check' : 'removeItem',
+            'click a.edit' : 'passThrough'
         },
 
         /**
@@ -247,6 +248,11 @@
 
             // Remove from the collection
             this.collection.remove(this.model);
+        },
+
+        passThrough: function(e)
+        {   e.stopPropagation();
+            return true;
         }
 
     });
@@ -339,12 +345,12 @@
 
                     // Type of posts shown
                     type: this.$el.data('type'),
-                    query: this.$el.data('query')
+                    query: this.$el.data('query'),
 
                 });
             }
-
-            console.log(this.frame);
+            this.limit = this.$el.data('limit');
+            console.log(this);
             // Attach an event on select. Runs when "insert" button is clicked.
             this.frame.on('select', _.bind(this.selectedItems, this));
 
@@ -405,9 +411,11 @@
 
             // Add the model to the collection.
             this.collection.add(m);
+            this.toggleAddButton(this.collection.length);
 
             // Add the model to the DOM.
             this.$el.find('ul.themosis-collection-list').append(itemView.render().el);
+
         },
 
         /**
@@ -462,6 +470,26 @@
         },
 
         /**
+         * Handle the display of the add button.
+         *
+         * @return void
+         */
+        toggleAddButton: function(items)
+        {   console.log([items,this,this.limit]);
+            if (items >= this.limit)
+            {
+                // Show the main remove button.
+                this.$el.find('button#themosis-collection-add').addClass('hide');
+                this.frame.trigger('close');
+            }
+            else
+            {
+                // Hide the main remove button.
+                this.$el.find('button#themosis-collection-add').removeClass('hide');
+            }
+        },
+
+        /**
          * Handle the display of the collection container.
          *
          * @return void
@@ -509,6 +537,7 @@
             var selectedItems = this.collection.where({'selected': true});
 
             this.collection.trigger('removeSelected', selectedItems);
+            this.toggleAddButton(this.collection.length);
         },
 
         /**
