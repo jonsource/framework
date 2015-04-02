@@ -89,7 +89,8 @@
             for(var q in this.query) {
                 query+='&'+q+'='+this.query[q];
             }
-            $.get('http://localhost/puzzlesalads/htdocs/api/?'+query,function(data)
+            var url = thfmk_themosis._themosisAssets.split('content')[0];
+            $.get(url+'/api/?'+query,function(data)
                 {   data=JSON.parse(data);
                     for(var d in data) {
                         var n = $(template(data[d]));
