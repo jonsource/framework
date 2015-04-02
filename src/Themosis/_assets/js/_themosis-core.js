@@ -475,7 +475,7 @@
          * @return void
          */
         toggleAddButton: function(items)
-        {   if (items >= this.limit)
+        {   if (this.limit && items >= this.limit)
             {
                 // Hide the add button.
                 this.$el.find('button#themosis-collection-add').addClass('hide');
