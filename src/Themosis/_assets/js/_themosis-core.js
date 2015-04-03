@@ -97,7 +97,7 @@
                         n.click(that,that.select);
                         de.append(n);
                     }
-                    that.$el.css('top',ot+(oh-that.$el.height()));
+                    //that.$el.css('top',ot+(oh-that.$el.height()));
                 });
         },
 
