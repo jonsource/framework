@@ -218,6 +218,9 @@ if (!function_exists('themosis_is_post'))
 
         if (!is_numeric($id))
         {
+            if(isset($_GET['post_type']) && isset($_GET['post_type'])==$id) {
+                return true;
+            }
             $post = get_post($postId);
             if($post && $id === $post->post_type)
             {
