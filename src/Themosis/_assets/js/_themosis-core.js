@@ -22,7 +22,7 @@
 
         template: '<div class="selector"><h1><%=title%></h1>'+
                     '<a class="media-modal-close" href="#"><span class="media-modal-icon"><span class="screen-reader-text">Zavřít okno pro práci s mediálními soubory</span></span></a>'+
-                    '<ul class="data"></ul>'+
+                    '<div class="data"></div>'+
                   '</div>',
 
         initialize: function(param)
@@ -31,7 +31,7 @@
             //console.log(param);
             this.title = param.title;
             this.type = param.type;
-            //console.log(param.query);
+            console.log(param.query);
             if(param.query && param.query.replace)
             {
                 this.query = JSON.parse(param.query.replace(/'/g,'"'));
@@ -77,7 +77,9 @@
 
         aquireData: function() {
             var de = this.$el.find('.data');
-            var template = _.template('<li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><span><%= post_title %></span></li>');
+            var simple_template = _.template('<li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><span><%= post_title %></span></li>');
+            var tab_header = _.template('<li class="nav-tab"><a href="#tab-<%= slug %>"><%= name %></a></li>');
+
             var that = this;
             var oh = that.$el.height();
             var ot = parseInt(that.$el.css('top'));
@@ -92,12 +94,39 @@
             var url = thfmk_themosis._themosisAssets.split('content')[0];
             $.get(url+'/api/?'+query,function(data)
                 {   data=JSON.parse(data);
-                    for(var d in data) {
-                        var n = $(template(data[d]));
-                        n.click(that,that.select);
-                        de.append(n);
+                    console.log(data);
+                    var ne = $('<ul class="list"></ul>');
+                    if(data[0].ID)
+                    {   for(var d in data) {
+                            var n = $(simple_template(data[d]));
+                            n.click(that,that.select);
+                            ne.append(n);
+                        }
+                        de.append(ne);
+                        that.$el.css('top',ot+(oh-that.$el.height()));
+                    } else {
+                        console.log('tabs');
+                        var header ='';
+                        for(var d in data) {
+                            header+= tab_header(data[d]);
+                        }
+                        var head = $('<ul class="nav-tab-wrapper"></ul>');
+                        head.append($(header));
+                        de.append(head);
+                        for(var d in data) {
+                            var tab = $('<div id="tab-'+data[d].slug+'" class="tab"></div>');
+                            var tu = $('<ul class="tab-list list"></ul>');
+                            tab.append(tu);
+                            for(var dd in data[d].data) {
+                                console.log(dd);
+                                var n = $(simple_template(data[d].data[dd]));
+                                n.click(that,that.select);
+                                tu.append(n);
+                            }
+                            de.append(tab);
+                        }
+                        $(de).tabs();
                     }
-                    that.$el.css('top',ot+(oh-that.$el.height()));
                 });
         },
 
