@@ -37,7 +37,7 @@
         <input type="hidden" name="{{ $field['name'] }}[]" value="<%= value %>" data-field="collection"/>
         <div class="themosis-collection__item">
     @if(isset($field['itemTemplate']))
-            {{$field['itemTemplate']}}
+            @include($field['itemTemplate'],['_language'=>'javascript'])
     @else
             <div class="name">
                 <div><%= title %></div>
@@ -64,12 +64,14 @@
                     {{ Themosis\Facades\Form::hidden($field['name'].'[]', $item, array('data-field' => 'collection', 'data-limit' => 10)) }}
                     <div class="themosis-collection__item">
 
-
+                        @if(isset($field['itemTemplate']))
+                            @include($field['itemTemplate'],['_language'=>'php','i'=>$i,'item'=>$item])
+                        @else
                         <div class="name">
-                            <div>{{$i}}, {{$item}}</div>
+                            <div>{{get_the_title($item)}}</div>
                         </div>
 
-
+                        @endif
 
                         <a class="check" title="Remove" href="#">
                             <div class="media-modal-icon"></div>
