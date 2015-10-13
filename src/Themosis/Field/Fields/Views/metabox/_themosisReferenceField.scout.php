@@ -11,17 +11,46 @@
      data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1"
      data-query="{{ $json_query }}"
      data-name="{{ $field['name'] }}[]" data-field="collection">
+
+    <script class="themosis-collection-selector-template" type="text/template">
+    @if(isset($field['selectorTemplate']))
+        {{$field['selectorTemplate']}}
+    @else
+        <div class="selector"><h1><%=title%></h1>
+            <a class="media-modal-close" href="#"><span class="media-modal-icon"><span class="screen-reader-text">Zavřít okno pro práci s mediálními soubory</span></span></a>
+            <div class="data"></div>
+        </div>
+    @endif
+    </script>
+
+    <script class="themosis-collection-selector-item-template" type="text/template">
+    @if(isset($field['selectorItemTemplate']))
+        {{$field['selectorItemTemplate']}}
+    @else
+        <li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>">
+            <span><%= post_title %></span>
+        </li>
+    @endif
+    </script>
+
     <script id="themosis-collection-item-template" type="text/template">
         <input type="hidden" name="{{ $field['name'] }}[]" value="<%= value %>" data-field="collection"/>
         <div class="themosis-collection__item">
+    @if(isset($field['itemTemplate']))
+            {{$field['itemTemplate']}}
+    @else
             <div class="name">
                 <div><%= title %></div>
             </div>
+
+    @endif
             <a class="check" title="Remove" href="#">
                 <div class="media-modal-icon"></div>
             </a>
         </div>
     </script>
+
+
     <?php
     $show = empty($field['value']) ? '' : 'show';
     ?>
@@ -34,28 +63,14 @@
                 <li>
                     {{ Themosis\Facades\Form::hidden($field['name'].'[]', $item, array('data-field' => 'collection', 'data-limit' => 10)) }}
                     <div class="themosis-collection__item">
-                        <?php
-                        $isFile = false;
-                        $src = themosis_plugin_url(themosis_path('plugin')).'/src/Themosis/_assets/images/themosisFileIcon.png';
 
-                        if (wp_attachment_is_image($item))
-                        {
-                            $src = wp_get_attachment_image_src($item, '_themosis_media');
-                            $src = $src[0];
-                        }
-                        else
-                        {
-                            $src = wp_get_attachment_image_src($item, '_themosis_media', true);
-                            $src = $src[0];
-                            $isFile = true;
-                        }
-                        ?>
-                        <!--<div class="centered">
-                            <img src="{{ $src }}" alt="Collection Item" <?php if ($isFile){ echo('class="icon"'); } ?>/>
-                        </div>-->
-                        <div class="name <?php if ($isFile){ echo('show'); } ?>">
-                            <div>{{ get_the_title($item) }}</div>
+
+                        <div class="name">
+                            <div>{{$i}}, {{$item}}</div>
                         </div>
+
+
+
                         <a class="check" title="Remove" href="#">
                             <div class="media-modal-icon"></div>
                         </a>

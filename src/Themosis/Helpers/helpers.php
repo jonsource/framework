@@ -561,3 +561,31 @@ function get_post_reference($id, $key = '', array $extra = array())
 
     return $default;
 }
+
+function str_strip($fix,$data,$pre = true) {
+    if($pre) {
+        if (substr($data, 0, strlen($fix)) == $fix) {
+            $data = substr($data, strlen($fix));
+        }
+    } else {
+        if (substr($data, strlen($data)-strlen($fix), strlen($data)) == $fix) {
+            $data = substr($data, 0, strlen($data)-strlen($fix));
+        }
+    }
+    return $data;
+}
+
+/* -- TODO :: make it WORK!!!
+
+function underscore_to_html($data)
+{
+    $pattern = '/<%= (.*?) %>/i';
+    $replace = '<?php echo \$item->$1 ?>';
+    $ret = preg_replace($pattern,$replace,$data);
+
+    $ret = str_strip('<?php',$ret);
+    $ret = str_strip('?>',$ret,false);
+
+    return $ret;
+}
+*/

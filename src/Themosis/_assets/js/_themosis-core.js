@@ -20,25 +20,26 @@
 
         eventAggregator: _.extend({}, Backbone.Events),
 
-        template: '<div class="selector"><h1><%=title%></h1>'+
-                    '<a class="media-modal-close" href="#"><span class="media-modal-icon"><span class="screen-reader-text">Zavřít okno pro práci s mediálními soubory</span></span></a>'+
-                    '<div class="data"></div>'+
-                  '</div>',
+        template: '',
 
         initialize: function(param)
         {
             //this.listenTo(this.collection, 'removeSelected', this.removeSelection);
-            //console.log(param);
+            console.log(param);
+            this.template = param.root.find('script.themosis-collection-selector-template').html();
+            this.selectorItemTemplate = param.root.find('script.themosis-collection-selector-item-template').html();
+            this.itemTmeplate = param.root.find('script.themosis-collection-item-template').html();
             this.title = param.title;
             this.type = param.type;
-            console.log(param.query);
             if(param.query && param.query.replace)
             {
                 this.query = JSON.parse(param.query.replace(/'/g,'"'));
             } else {
                 this.query = {};
             }
-
+            if(param.selectorTemplate) {
+                this.template = param.selectorTemplate;
+            }
         },
 
         /**
@@ -77,7 +78,7 @@
 
         aquireData: function() {
             var de = this.$el.find('.data');
-            var simple_template = _.template('<li data-mfcc-id="<%= ID %>" data-mfcc-title="<%= post_title %>"><span><%= post_title %></span></li>');
+            var simple_template = _.template(this.selectorItemTemplate);
             var tab_header = _.template('<li class="nav-tab"><a href="#tab-<%= slug %>"><%= name %></a></li>');
 
             var that = this;
@@ -375,7 +376,7 @@
                     // Type of posts shown
                     type: this.$el.data('type'),
                     query: this.$el.data('query'),
-
+                    root: this.$el
                 });
             }
             this.limit = this.$el.data('limit');
