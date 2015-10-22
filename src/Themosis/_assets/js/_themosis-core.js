@@ -25,7 +25,6 @@
         initialize: function(param)
         {
             //this.listenTo(this.collection, 'removeSelected', this.removeSelection);
-            console.log(param);
             this.template = param.root.find('script.themosis-collection-selector-template').html();
             this.selectorItemTemplate = param.root.find('script.themosis-collection-selector-item-template').html();
             this.itemTmeplate = param.root.find('script.themosis-collection-item-template').html();
@@ -51,7 +50,6 @@
         {
             var template = _.template(this.template);
 
-            //console.log(this.$el);
             this.$el.html(template({title:this.title}));
 
             this.$el.draggable();
@@ -72,8 +70,11 @@
          * @return void
          */
         select: function(e)
-        {   e.data.selection = {ID : $(this).data('mfcc-id'), title:$(this).data('mfcc-title')};
+        {   var mfcc_data = $(this).data('mfcc-data');
+            if(!mfcc_data) mfcc_data = {};
+            e.data.selection = {ID : $(this).data('mfcc-id'), title:$(this).data('mfcc-title'), mfcc_data:mfcc_data};
             e.data.trigger('select');
+            console.log(['data',e.data]);
         },
 
         aquireData: function() {
@@ -95,18 +96,17 @@
             var url = thfmk_themosis._themosisAssets.split('content')[0];
             $.get(url+'/api/?'+query,function(data)
                 {   data=JSON.parse(data);
-                    console.log(data);
                     var ne = $('<ul class="list"></ul>');
                     if(data[0].ID)
                     {   for(var d in data) {
                             var n = $(simple_template(data[d]));
+                            n.data('mfcc-data',data[d]); //store all items data
                             n.click(that,that.select);
                             ne.append(n);
                         }
                         de.append(ne);
                         that.$el.css('top',ot+(oh-that.$el.height()));
                     } else {
-                        console.log('tabs');
                         var header ='';
                         for(var d in data) {
                             header+= tab_header(data[d]);
@@ -119,7 +119,6 @@
                             var tu = $('<ul class="tab-list list"></ul>');
                             tab.append(tu);
                             for(var dd in data[d].data) {
-                                console.log(dd);
                                 var n = $(simple_template(data[d].data[dd]));
                                 n.click(that,that.select);
                                 tu.append(n);
@@ -416,7 +415,6 @@
         insertItem: function(attachment)
         {
             // Build a specific model for this attachment.
-            //console.log(attachment);
             if(!this.custom_select)
             {   var m = new CollectionApp.Models.Item({
                     'value': attachment.get('id'),
@@ -427,8 +425,9 @@
             } else {
                 var m = new CollectionApp.Models.Item({
                     'value': attachment.ID,
-                    'type': attachment.type,
-                    'title': attachment.title
+                    'type': 'reference',
+                    'title': attachment.title,
+                    'mfcc_data': attachment.mfcc_data
                 });
             }
 
