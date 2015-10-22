@@ -1,17 +1,21 @@
 <!-- Collection field -->
-<div class="themosis-collection-wrapper" data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1" data-name="{{ $field['name'] }}[]" data-field="collection">
+<div class="themosis-collection-wrapper {{$field['class'] or ''}}" data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1" data-name="{{ $field['name'] }}[]" data-field="collection">
     <script id="themosis-collection-item-template" type="text/template">
         <input type="hidden" name="{{ $field['name'] }}[]" value="<%= value %>" data-field="collection"/>
         <div class="themosis-collection__item">
-            <div class="centered">
-                <img src="<%= src %>" alt="Collection Item"/>
-            </div>
-            <div class="filename">
-                <div><%= title %></div>
-            </div>
-            <a class="check" title="Remove" href="#">
-                <div class="media-modal-icon"></div>
-            </a>
+            @if(isset($field['itemTemplate']))
+                @include($field['itemTemplate'],['_language'=>'javascript'])
+            @else
+                <div class="centered">
+                    <img src="<%= src %>" alt="Collection Item"/>
+                </div>
+                <div class="filename">
+                    <div><%= title %></div>
+                </div>
+                <a class="check" title="Remove" href="#">
+                    <div class="media-modal-icon"></div>
+                </a>
+            @endif
         </div>
     </script>
     <?php
@@ -42,12 +46,17 @@
                                         $isFile = true;
                                     }
                                 ?>
-                                <div class="centered">
-                                    <img src="{{ $src }}" alt="Collection Item" <?php if ($isFile){ echo('class="icon"'); } ?>/>
-                                </div>
-                                <div class="filename <?php if ($isFile){ echo('show'); } ?>">
-                                    <div>{{ get_the_title($item) }}</div>
-                                </div>
+                                @if(isset($field['itemTemplate']))
+                                    @include($field['itemTemplate'],['_language'=>'php','i'=>$i,'item'=>$item])
+                                @else
+                                    <div class="centered">
+                                        <img src="{{ $src }}" alt="Collection Item" <?php if ($isFile){ echo('class="icon"'); } ?>/>
+                                    </div>
+                                    <div class="filename <?php if ($isFile){ echo('show'); } ?>">
+                                        <div>{{ get_the_title($item) }}</div>
+                                    </div>
+
+                                @endif
                                 <a class="check" title="Remove" href="#">
                                     <div class="media-modal-icon"></div>
                                 </a>
