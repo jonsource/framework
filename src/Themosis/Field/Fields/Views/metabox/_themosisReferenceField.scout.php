@@ -7,7 +7,7 @@
 ?>
 
 <!-- Collection field -->
-<div class="themosis-collection-wrapper rows" data-type-name="{{$field['type-name']?$field['type-name']:get_post_type_object($field['type'])->labels->singular_name}}"
+<div class="themosis-collection-wrapper rows" data-custom-select="true" data-type-name="{{$field['type-name']?$field['type-name']:get_post_type_object($field['type'])->labels->singular_name}}"
      data-type="{{ $field['type'] }}" data-limit="{{ $field['limit'] }}" data-order="1"
      data-query="{{ $json_query }}"
      data-name="{{ $field['name'] }}[]" data-field="collection">

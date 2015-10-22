@@ -344,8 +344,8 @@
 
             // Init a WordPress media window.
             //console.log(param.el);
-            this.rows = param.el.hasClass('rows');
-            if(!this.rows)
+            this.custom_select = param.el.data('custom-select');
+            if(!this.custom_select)
             {
                 this.frame = wp.media({
                     // Define behaviour of the media window.
@@ -397,7 +397,7 @@
         {
             //console.log('selected items');
             var selection;
-            if(!this.rows) selection = this.frame.state('library').get('selection');
+            if(!this.custom_select) selection = this.frame.state('library').get('selection');
             else selection = [this.frame.selection];
 
             selection.map(function(attachment)
@@ -417,7 +417,7 @@
         {
             // Build a specific model for this attachment.
             //console.log(attachment);
-            if(!this.rows)
+            if(!this.custom_select)
             {   var m = new CollectionApp.Models.Item({
                     'value': attachment.get('id'),
                     'src': this.getAttachmentThumbnail(attachment),
@@ -604,7 +604,7 @@
             items = list.children();
 
         // Instantiate a collection.
-        var c = new CollectionApp.Collections.Collection(list.hasClass('rows'));
+        var c = new CollectionApp.Collections.Collection(list.data('custom-select'));
 
         // Instantiate a collection view.
         var cView = new CollectionApp.Views.Collection({
